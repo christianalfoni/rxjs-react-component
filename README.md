@@ -7,7 +7,7 @@ A component allowing you to change state using observables
 Depends on React and rxjs
 
 ### Howto
-By convention all methods defined with a `$` at the end will become an observable instead. By returning the observable mapping to an object will cause a state change in the component.
+By convention all methods defined with a `$` at the end will expose an observable instead. By returning the observable mapping to an object will cause a state change in the component.
 
 ```js
 import React from 'react';
@@ -71,7 +71,7 @@ import ObservableComponent from 'rxjs-react-component';
 
 class MyComponent extends ObservableComponent {
   componentWillUpdate$(observable) {
-    observable.forEach(args => console.log(args.nextProps));
+    observable.forEach({nextProps} => console.log(nextProps));
   }
   render() {
     return (
