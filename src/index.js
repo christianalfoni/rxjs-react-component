@@ -48,7 +48,7 @@ class ObservableComponent extends React.Component {
         this.componentDidUpdate = (prevProps, prevState) => subject.next({prevProps, prevState});
       }
 
-      const stateChange$ = observables[key](subject, getState);
+      const stateChange$ = observables[key].call(this, subject, getState);
 
       if (!stateChange$) {
         throw new Error('ObservableComponent: You did not return an observable from the key ' + key);

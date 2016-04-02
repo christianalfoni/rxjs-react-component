@@ -18,8 +18,8 @@ class MyComponent extends ObservableComponent {
     super(props);
     this.state = {count: 0};
   }
-  onClick$(observable, getState) {
-    return observable.map(() => ({count: getState().count + 1}));
+  onClick$(observable) {
+    return observable.map(() => ({count: this.state.count + 1}));
   }
   render() {
     return (
@@ -44,9 +44,9 @@ class MyComponent extends ObservableComponent {
     super(props);
     this.state = {count: 0};
   }
-  onClick$(observable, getState) {
-    const increase$ = observable.map(() => ({count: getState().count + 1}));
-    const delayedIncrease$ = observable.delay(200).map(() => ({count: getState().count + 1}));
+  onClick$(observable) {
+    const increase$ = observable.map(() => ({count: this.state.count + 1}));
+    const delayedIncrease$ = observable.delay(200).map(() => ({count: this.state.count + 1}));
     return Observable.merge(
       increase$,
       delayedIncrease$
@@ -70,7 +70,7 @@ import React from 'react';
 import ObservableComponent from 'rxjs-react-component';
 
 class MyComponent extends ObservableComponent {
-  componentWillUpdate$(observable, getState) {
+  componentWillUpdate$(observable) {
     observable.forEach(args => console.log(args.nextProps));
   }
   render() {
