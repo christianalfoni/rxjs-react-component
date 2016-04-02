@@ -56,7 +56,7 @@ class MyComponent extends ObservableComponent {
     return (
       <div>
         <h1>Hello world ({this.state.count})</h1>
-        <button onClick={this.observables.onClick$}>Increase</button>
+        <button onClick={this.onClick$}>Increase</button>
       </div>
     );
   }
