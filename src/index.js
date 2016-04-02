@@ -8,22 +8,14 @@ function isObject(obj) {
 class ObservableComponent extends React.Component {
   constructor(props) {
     super(props);
-    this.observables = {};
   }
   componentWillMount() {
-    if (!this.state) {
-      throw new Error('ObservableComponent: You have to define some initial state on your component');
-    }
-
-    if (!this.getObservables) {
-      throw new Error('ObservableComponent: You have to define a getObservables method which returns your observables. You mistyped maybe?');
-    }
-
-    const observables = this.getObservables();
-
-    if (!isObject(observables)) {
-      throw new Error('ObservableComponent: You did not return an object from the getObservables method');
-    }
+    const observables = Object.getOwnPropertyNames(Object.getPrototypeOf(this)).reduce((observables, key) => {
+      if (key[key.length - 1] === '$') {
+        observables[key] = this[key];
+      }
+      return observables;
+    }, {});
 
     const getState = () => {
       return this.state;
@@ -34,6 +26,26 @@ class ObservableComponent extends React.Component {
 
       if (typeof observables[key] !== 'function') {
         throw new Error('ObservableComponent: You did not set a function on ' + key);
+      }
+
+      if (key === 'componentDidMount$') {
+        this.componentDidMount = () => subject.next();
+      }
+
+      if (key === 'componentWillUnmount$') {
+        this.componntWillUnmount = () => subject.next();
+      }
+
+      if (key === 'componentWillReceiveProps$') {
+        this.componentWillReceiveProps = (nextProps) => subject.next(nextProps);
+      }
+
+      if (key === 'componentWillUpdate$') {
+        this.componentWillUpdate = (nextProps, nextState) => subject.next({nextProps, nextState});
+      }
+
+      if (key === 'componentDidUpdate$') {
+        this.componentDidUpdate = (prevProps, prevState) => subject.next({prevProps, prevState});
       }
 
       const stateChange$ = observables[key](subject, getState);
@@ -49,13 +61,13 @@ class ObservableComponent extends React.Component {
       });
     }, []);
 
-    stateChangers.reduce((observables, stateChanger) => {
-      observables[stateChanger.key] = stateChanger.cb;
+    stateChangers.forEach((stateChanger) => {
+      this[stateChanger.key] = stateChanger.cb;
+    });
 
-      return observables;
-    }, this.observables);
-
-    const stateChangers$ = stateChangers.map(stateChanger => stateChanger.stateChange$);
+    const stateChangers$ = stateChangers
+      .filter(stateChanger => Boolean(stateChanger.stateChange$))
+      .map(stateChanger => stateChanger.stateChange$);
     Observable.merge.apply(Observable, stateChangers$)
       .subscribe(newState => {
 

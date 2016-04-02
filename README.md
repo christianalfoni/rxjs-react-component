@@ -7,6 +7,7 @@ A component allowing you to change state using observables
 Depends on React and rxjs
 
 ### Howto
+By convention all methods defined with a `$` at the end will become an observable instead. By returning the observable mapping to an object will cause a state change in the component.
 
 ```js
 import React from 'react';
@@ -17,18 +18,14 @@ class MyComponent extends ObservableComponent {
     super(props);
     this.state = {count: 0};
   }
-  getObservables() {
-    return {
-      onClick$(observable, getState) {
-        return observable.map(() => ({count: getState().count + 1}));
-      }
-    }
+  onClick$(observable, getState) {
+    return observable.map(() => ({count: getState().count + 1}));
   }
   render() {
     return (
       <div>
         <h1>Hello world ({this.state.count})</h1>
-        <button onClick={this.observables.onClick$}>Increase</button>
+        <button onClick={this.onClick$}>Increase</button>
       </div>
     );
   }
@@ -47,23 +44,39 @@ class MyComponent extends ObservableComponent {
     super(props);
     this.state = {count: 0};
   }
-  getObservables() {
-    return {
-      onClick$(observable, getState) {
-        const increase$ = observable.map(() => ({count: getState().count + 1}));
-        const delayedIncrease$ = observable.delay(200).map(() => ({count: getState().count + 1}));
-        return Observable.merge(
-          increase$,
-          delayedIncrease$
-        );
-      }
-    }
+  onClick$(observable, getState) {
+    const increase$ = observable.map(() => ({count: getState().count + 1}));
+    const delayedIncrease$ = observable.delay(200).map(() => ({count: getState().count + 1}));
+    return Observable.merge(
+      increase$,
+      delayedIncrease$
+    );
   }
   render() {
     return (
       <div>
         <h1>Hello world ({this.state.count})</h1>
         <button onClick={this.observables.onClick$}>Increase</button>
+      </div>
+    );
+  }
+}
+```
+
+You can also hook on to life-cycle hooks using the same naming convention:
+
+```js
+import React from 'react';
+import ObservableComponent from 'rxjs-react-component';
+
+class MyComponent extends ObservableComponent {
+  componentWillUpdate$(observable, getState) {
+    observable.forEach(args => console.log(args.nextProps));
+  }
+  render() {
+    return (
+      <div>
+        <h1>Hello world</h1>
       </div>
     );
   }
