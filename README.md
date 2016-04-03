@@ -7,7 +7,7 @@ A component allowing you to change state using observables
 Depends on React and rxjs
 
 ### Howto
-By convention all methods defined with a `$` at the end will expose an observable instead. By returning the observable mapping to an object will cause a state change in the component.
+By convention all methods defined with a `$` at the end will expose an observable instead. If you return the observable it is expected to map to an object. This object will be run with `this.setState(mappedObservableObject)` and cause a render on the component.
 
 ```js
 import React from 'react';
@@ -63,7 +63,7 @@ class MyComponent extends ObservableComponent {
 }
 ```
 
-You can also hook on to life-cycle hooks using the same naming convention:
+You can also hook on to life-cycle hooks using the same naming convention. Not all of these should cause a new render of the component and you handle that by just not returning the observable.
 
 ```js
 import React from 'react';
