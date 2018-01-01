@@ -33,7 +33,7 @@ class ObservableComponent extends React.Component {
       }
 
       if (key === 'componentWillUnmount$') {
-        this.componntWillUnmount = () => subject.next();
+        this.componentWillUnmount = () => subject.next();
       }
 
       if (key === 'componentWillReceiveProps$') {
